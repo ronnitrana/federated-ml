@@ -1,0 +1,26 @@
+.vscode
+__pycache__
+10rounds_clean
+2023-11-17
+data
+outputs
+emnist-gzip.zip
+README_FLOWER.md
+# results
+
+.idea
+
+#GANs 
+GAN/MNIST_cDCGAN.py
+GAN/generator_5.pth
+GAN/generated_images
+
+#Experiments
+runs/*
+
+#Model images
+*.onnx
+
+pseudo.py
+model_tuning.ipynb
+data_visualization.ipynb
