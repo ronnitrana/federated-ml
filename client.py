@@ -44,7 +44,8 @@ def generate_client_fn(traindataset_list: List[Dataset], valdataset_list: List[D
             traindataset=traindataset_list[int(cid)],
             valdataset=valdataset_list[int(cid)],
             num_classes=num_classes,
-            num_features=28 * 28  # TODO configurable?
+            num_features=28 * 28,  # TODO configurable?
+            label_ratio=cfg["label_attack_ratio"]
         ).to_client()
 
     # Control logic for other models
@@ -55,7 +56,7 @@ def generate_client_fn(traindataset_list: List[Dataset], valdataset_list: List[D
 class FlowerClientLGR(fl.client.NumPyClient):
     '''Define a Flower Client'''
 
-    def __init__(self, traindataset: Dataset, valdataset: Dataset, num_classes: int, num_features) -> None:
+    def __init__(self, traindataset: Dataset, valdataset: Dataset, num_classes: int, num_features, label_ratio: float) -> None:
         super().__init__()
 
         # the dataloaders that point to the data associated to this client
@@ -73,6 +74,7 @@ class FlowerClientLGR(fl.client.NumPyClient):
             self.model.intercept_ = np.zeros((num_classes,))
         self.attack_type = None
         self.is_malicious = False
+        self.label_ratio = label_ratio
 
     def set_parameters(self, parameters):
         """Receive parameters and apply them to the local model."""
@@ -99,7 +101,7 @@ class FlowerClientLGR(fl.client.NumPyClient):
         self.attack_type = config["attack_type"]
         self.is_malicious = config["is_malicious"]
         # Poison the dataset if the client is malicious
-        self.traindataset = applyAttacks(self.traindataset, config, model="LGR")
+        self.traindataset = applyAttacks(trainset=self.traindataset, label_ratio=self.label_ratio, config=config)
 
         # copy parameters sent by the server into client's local model
         self.set_parameters(parameters)
@@ -171,7 +173,7 @@ class FlowerClientLGR(fl.client.NumPyClient):
                                           "confusion_matrix": conf_matrix}
 
 
-def applyAttacks(trainset: Dataset, config, model: str = None) -> Dataset:
+def applyAttacks(trainset: Dataset, config, label_ratio: float, model: str = None) -> Dataset:
     # NOTE: this attack ratio is different, This is for number of samples to attack.
     ## The one in the config file is to select number of malicious clients
 
@@ -193,6 +195,6 @@ def applyAttacks(trainset: Dataset, config, model: str = None) -> Dataset:
     else:
         if config["is_malicious"]:
             print("----------------------------------Dataset Attacked------------------------------")
-            return label_flipping_attack(dataset=trainset, num_classes=10, attack_ratio=1.0)
+            return label_flipping_attack(dataset=trainset, num_classes=10, attack_ratio=label_ratio)
 
     return trainset
