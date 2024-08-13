@@ -1,0 +1,18 @@
+attack_round: FULL
+attack_type: LF
+config_fit:
+  batch_size: 20
+  local_epochs: 1
+  lr: 0.01
+  momentum: 0.9
+  penalty: l2
+  warm_start: true
+defence: false
+label_attack_ratio: 0.9
+max_attack_ratio: 0.3
+model: LGR
+num_classes: 10
+num_clients: 10
+num_clients_per_round_eval: 10
+num_clients_per_round_fit: 10
+num_rounds: 10
