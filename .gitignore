@@ -24,3 +24,5 @@ runs/*
 pseudo.py
 model_tuning.ipynb
 data_visualization.ipynb
+
+GAN
